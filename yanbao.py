@@ -12,7 +12,7 @@ import collections
 import pandas as pd
 import xlrd
 import numpy as np
-from datetime import datetime
+from datetime import datetime,timedelta
 import time
 from  connmongo import MongoConn
 
@@ -36,8 +36,12 @@ if __name__ == '__main__':
     for dt in test.parsepage():
         rst = []
         for d in dt['data']:
-            rst.append({d['secuName']:d['rate']})
-            keys.add(d['secuName'])
+            dt = d['datetime']
+            dtt = datetime.strptime(dt,'%Y-%m-%dT%H:%M:%S') 
+            deathday = datetime.now()-timedelta(days=3)
+            if deathday <= dtt:
+                rst.append({d['secuName']:d['rate']})
+                keys.add(d['secuName'])
         finalrst.extend(rst)
     final2 = dict.fromkeys(keys)
     for item in finalrst:
@@ -57,7 +61,7 @@ if __name__ == '__main__':
     final6 = final5.sort_index(by=["买入","增持"],ascending=[False,False])
     print(final6)
     filename = time.strftime('%Y-%m-%d',time.localtime())
-    final6.to_csv("个股评论.csv",encoding='utf_8_sig')
+    final6.to_csv(filename + ".csv",encoding='utf_8_sig')
 
 
 
